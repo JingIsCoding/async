@@ -1,4 +1,4 @@
-package async_await
+package async
 
 type Result struct {
 	value interface{}
