@@ -15,14 +15,14 @@ type FutureTestSuite struct {
 
 func (suite *FutureTestSuite) TestAwait() {
 	suite.Run("should return value", func() {
-		result := Async(func(res Resolve, rej Reject) {
+		result := Async(func(res Resolve[string], rej Reject[error]) {
 			res("yes")
 		}).Await()
 		suite.Equal("yes", result.Value())
 	})
 
 	suite.Run("should return error", func() {
-		result := Async(func(res Resolve, rej Reject) {
+		result := Async(func(res Resolve[interface{}], rej Reject[error]) {
 			rej(errors.New("something is wrong"))
 		}).Await()
 		suite.Equal("something is wrong", result.Error().Error())
@@ -30,9 +30,9 @@ func (suite *FutureTestSuite) TestAwait() {
 
 	suite.Run("should error on context deadline exceeded", func() {
 		ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
-		future := Async(func(res Resolve, rej Reject) {
+		future := Async(func(res Resolve[string], rej Reject[error]) {
 			time.Sleep(3 * time.Second)
-			res("time out on 3 seconds")
+			res("should not see this")
 		}, ctx)
 		result := future.Await()
 		suite.Equal("context deadline exceeded", result.Error().Error())
