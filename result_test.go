@@ -11,24 +11,43 @@ type ResultTestSuite struct {
 	suite.Suite
 }
 
+type valueType struct {
+	data string
+}
+
 func (suite *ResultTestSuite) TestResult() {
-	suite.Run("should return value", func() {
-		result := Result{
-			value: "ok",
+	suite.Run("should return string value", func() {
+		value := "ok"
+		result := Result[string, error]{
+			value: &value,
+			err:   nil,
 		}
 		suite.Equal("ok", result.Value())
 	})
 
+	suite.Run("should return value of custom type", func() {
+		value := valueType{data: "yes"}
+		result := Result[valueType, error]{
+			value: &value,
+			err:   nil,
+		}
+		suite.Equal("yes", result.Value().data)
+	})
+
 	suite.Run("should return error", func() {
-		result := Result{
-			err: errors.New("not ok"),
+		err := errors.New("not ok")
+		result := Result[interface{}, error]{
+			value: nil,
+			err:   &err,
 		}
 		suite.Equal("not ok", result.Error().Error())
 	})
 
 	suite.Run("should return is not ok there is error", func() {
-		result := Result{
-			err: errors.New("not ok"),
+		err := errors.New("not ok")
+		result := Result[interface{}, error]{
+			value: nil,
+			err:   &err,
 		}
 		suite.False(result.IsOK())
 	})
