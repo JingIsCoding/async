@@ -9,11 +9,14 @@ go get -u github.com/JingIsCoding/async
 
 ## Usage
 #### From v1.0.1 using Golang generics to enforce typed result
+
 #### Resolves the future with string type
 ```go
-result := Async(func(res Resolve[string], rej Reject[error]) {
-	res("yes")
-}).Await()
+future := Async(func(res Resolve[string], rej Reject[error]) {
+  // do something asynchronously 
+  res("yes")
+})
+result := future.Await()
 // do something with the result
 fmt.Println(result.Value())
 ```
