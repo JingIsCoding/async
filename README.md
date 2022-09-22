@@ -4,7 +4,7 @@
 
 #### From v1.0.1 using Golang generics to enforce typed result
 #### Resolves the future with string type
-```
+```go
 result := Async(func(res Resolve[string], rej Reject[error]) {
 	res("yes")
 }).Await()
@@ -12,7 +12,7 @@ result := Async(func(res Resolve[string], rej Reject[error]) {
 fmt.Println(result.Value())
 ```
 #### Resolves the future with custom type
-```
+```go
 type User struct {
   Name string
 }
@@ -25,7 +25,7 @@ fmt.Println(result.Value().Name)
 ```
 
 #### Reject the future
-```
+```go
 result := Async(func(res Resolve[interface{}], rej Reject[error]) {
 	rej(errors.New("something is wrong"))
 }).Await()
@@ -35,7 +35,7 @@ fmt.Printf("%e", result.Error())
 ```
 
 #### With context
-```
+```go
 ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
 	future := Async(func(res Resolve[string], rej Reject[error]) {
 	time.Sleep(3 * time.Second)
