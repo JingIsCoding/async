@@ -1,7 +1,13 @@
-## Async/Await
+# Golang Async/Await
 
-### An implementation that makes managing async tasks easier
+#### An implementation that makes managing async tasks easier
 
+## Installation
+```
+go get -u github.com/JingIsCoding/async
+```
+
+## Usage
 #### From v1.0.1 using Golang generics to enforce typed result
 #### Resolves the future with string type
 ```go
@@ -44,3 +50,7 @@ ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second)
 result := future.Await()
 // Failed to resolve because the context timeouts
 ```
+
+## License
+
+Distributed under MIT License. See [LICENSE](LICENSE) file for more details.
