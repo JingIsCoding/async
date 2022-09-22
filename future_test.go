@@ -13,7 +13,18 @@ type FutureTestSuite struct {
 	suite.Suite
 }
 
+type testUserType struct {
+	Name string
+}
+
 func (suite *FutureTestSuite) TestAwait() {
+	suite.Run("should return custom value", func() {
+		result := Async(func(res Resolve[testUserType], rej Reject[error]) {
+			res(testUserType{Name: "Jing"})
+		}).Await()
+		suite.Equal("Jing", result.Value().Name)
+	})
+
 	suite.Run("should return value", func() {
 		result := Async(func(res Resolve[string], rej Reject[error]) {
 			res("yes")

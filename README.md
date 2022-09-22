@@ -11,6 +11,18 @@ result := Async(func(res Resolve[string], rej Reject[error]) {
 // do something with the result
 fmt.Println(result.Value())
 ```
+#### Resolves the future with custom type
+```
+type User struct {
+  Name string
+}
+// somewhere in the code
+result := Async(func(res Resolve[User], rej Reject[error]) {
+  res(User{Name:":"some one"})
+}).Await()
+// do something with the result
+fmt.Println(result.Value().Name)
+```
 
 #### Reject the future
 ```

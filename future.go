@@ -29,6 +29,8 @@ func Async[T interface{}, E error](fun Func[T, E], ctxs ...context.Context) Futu
 		errChannel: make(chan E),
 	}
 	go func() {
+		defer close(future.valChannel)
+		defer close(future.errChannel)
 		fun(func(val T) {
 			future.valChannel <- val
 		}, func(err E) {
@@ -39,8 +41,6 @@ func Async[T interface{}, E error](fun Func[T, E], ctxs ...context.Context) Futu
 }
 
 func (future *future[T, E]) Await() Result[T, E] {
-	defer close(future.valChannel)
-	defer close(future.errChannel)
 	var value T
 	var err E
 	select {
