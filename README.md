@@ -1,7 +1,7 @@
 # Golang Async/Await
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/JingIsCoding/async)](https://goreportcard.com/report/github.com/JingIsCoding/async)
-
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/JingIsCoding/async)](https://pkg.go.dev/github.com/JingIsCoding/async)
 
 #### An implementation that makes managing async tasks easier
 
