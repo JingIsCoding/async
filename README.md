@@ -49,8 +49,8 @@ fmt.Printf("%e", result.Error())
 #### With context
 ```go
 ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
-	future := Async(func(res Resolve[string], rej Reject[error]) {
-	time.Sleep(3 * time.Second)
+future := Async(func(res Resolve[string], rej Reject[error]) {
+  time.Sleep(3 * time.Second)
   res("should not see this")
 }, ctx)
 result := future.Await()
