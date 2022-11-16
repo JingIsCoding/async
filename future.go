@@ -1,6 +1,9 @@
 package async
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type Resolve[T interface{}] func(T)
 
@@ -29,8 +32,15 @@ func Async[T interface{}, E error](fun Func[T, E], ctxs ...context.Context) Futu
 		errChannel: make(chan E),
 	}
 	go func() {
-		defer close(future.valChannel)
-		defer close(future.errChannel)
+		defer func() {
+			if r := recover(); r != nil {
+				if err, ok := r.(string); ok {
+					future.errChannel <- errors.New(err).(E)
+				}
+			}
+			close(future.valChannel)
+			close(future.errChannel)
+		}()
 		fun(func(val T) {
 			future.valChannel <- val
 		}, func(err E) {

@@ -59,6 +59,14 @@ func (suite *FutureTestSuite) TestAwait() {
 	})
 }
 
+func (suite *FutureTestSuite) TestPanic() {
+	result := Async(func(res Resolve[interface{}], rej Reject[error]) {
+		panic("something is deadly wrong..")
+	}).Await()
+	suite.False(result.IsOK())
+	suite.Equal("something is deadly wrong..", result.Error().Error())
+}
+
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestFutureTestSuite(t *testing.T) {
