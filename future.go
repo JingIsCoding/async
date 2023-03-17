@@ -3,6 +3,7 @@ package async
 import (
 	"context"
 	"errors"
+	"fmt"
 )
 
 type Resolve[T interface{}] func(T)
@@ -55,7 +56,15 @@ func (future *future[T, E]) Await() Result[T, E] {
 	var err E
 	select {
 	case <-future.ctx.Done():
-		err := future.ctx.Err().(E)
+		var err E
+		var ok bool
+		if fe := future.ctx.Err(); fe != nil {
+			if err, ok = fe.(E); !ok {
+				err = errors.New(fmt.Sprintf("incompatible context errorr transfer from %T", fe)).(E)
+			}
+		} else {
+			err = errors.New("context cancelled").(E)
+		}
 		return Result[T, E]{
 			value: nil,
 			err:   &err,

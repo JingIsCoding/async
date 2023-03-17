@@ -29,9 +29,9 @@ func (suite *FutureTestSuite) TestAwait() {
 
 	suite.Run("should return custom value", func() {
 		result := Async(func(res Resolve[testUserType], rej Reject[error]) {
-			res(testUserType{Name: "Jing"})
+			res(testUserType{Name: "John"})
 		}).Await()
-		suite.Equal("Jing", result.Value().Name)
+		suite.Equal("John", result.Value().Name)
 	})
 
 	suite.Run("should return value", func() {
@@ -49,13 +49,22 @@ func (suite *FutureTestSuite) TestAwait() {
 	})
 
 	suite.Run("should error on context deadline exceeded", func() {
-		ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
+		defer cancel()
 		future := Async(func(res Resolve[string], rej Reject[error]) {
 			time.Sleep(3 * time.Second)
 			res("should not see this")
 		}, ctx)
 		result := future.Await()
 		suite.Equal("context deadline exceeded", result.Error().Error())
+	})
+
+	suite.Run("should handle panic", func() {
+		result := Async(func(res Resolve[interface{}], rej Reject[error]) {
+			panic("something is deadly wrong..")
+		}).Await()
+		suite.False(result.IsOK())
+		suite.Equal("something is deadly wrong..", result.Error().Error())
 	})
 }
 
