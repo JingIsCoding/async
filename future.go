@@ -60,7 +60,7 @@ func (future *future[T, E]) Await() Result[T, E] {
 		var ok bool
 		if fe := future.ctx.Err(); fe != nil {
 			if err, ok = fe.(E); !ok {
-				err = errors.New(fmt.Sprintf("incompatible context errorr transfer from %T", fe)).(E)
+				err = fmt.Errorf("incompatible context errorr transfer from %T", fe).(E)
 			}
 		} else {
 			err = errors.New("context cancelled").(E)
