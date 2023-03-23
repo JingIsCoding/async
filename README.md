@@ -19,6 +19,7 @@ future := Async(context.Background(), func(res Resolve[string], rej Reject[error
 	res("ok")
 })
 result := future.Await()
+fmt.Println("should be ok ", result.IsOk())
 fmt.Println(*result.Value())
 
 ```
