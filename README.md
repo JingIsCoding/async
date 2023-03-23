@@ -11,50 +11,50 @@ go get -u github.com/JingIsCoding/async
 ```
 
 ## Usage
-#### From v1.0.1 using Golang generics to enforce typed result
 
 #### Resolves the future with string type
 ```go
-future := Async(func(res Resolve[string], rej Reject[error]) {
-  // do something asynchronously 
-  res("yes")
+future := Async(context.Background(), func(res Resolve[string], rej Reject[error]) {
+	time.Sleep(1000)
+	res("ok")
 })
 result := future.Await()
-// do something with the result
-fmt.Println(result.Value())
+suite.Equal("ok", *result.Value())
+
 ```
 #### Resolves the future with custom type
 ```go
-type User struct {
-  Name string
+type testUserType struct {
+	Name string
 }
-// somewhere in the code
-result := Async(func(res Resolve[User], rej Reject[error]) {
-  res(User{Name:":"some one"})
+result := Async(context.Background(), func(res Resolve[testUserType], rej Reject[error]) {
+	res(testUserType{Name: "John"})
 }).Await()
-// do something with the result
-fmt.Println(result.Value().Name)
+suite.Equal("John", result.Value().Name)
+
 ```
 
 #### Reject the future
 ```go
-result := Async(func(res Resolve[interface{}], rej Reject[error]) {
-	rej(errors.New("something is wrong"))
+err := errors.New("something is wrong")
+result := Async(context.Background(), func(res Resolve[interface{}], rej Reject[error]) {
+	rej(err)
 }).Await()
-fmt.Printf("%t", result.IsOK())
-fmt.Printf("%e", result.Error())
-// do something with the result that has error
+suite.Equal(&err, result.Error())
+
 ```
 
-#### With context
+#### Context time out
 ```go
-ctx, _ := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
-future := Async(func(res Resolve[string], rej Reject[error]) {
-  time.Sleep(3 * time.Second)
-  res("should not see this")
-}, ctx)
+ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
+defer cancel()
+future := Async(ctx, func(res Resolve[string], rej Reject[error]) {
+	time.Sleep(3 * time.Second)
+	res("should not see this")
+})
 result := future.Await()
-// Failed to resolve because the context timeouts
+suite.Equal("context deadline exceeded", (*result.Error()).Error())
+
 ```
 
 ## License
