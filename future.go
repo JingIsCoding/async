@@ -6,27 +6,23 @@ import (
 	"fmt"
 )
 
-type Resolve[T interface{}] func(T)
+type Resolve[T any] func(T)
 
 type Reject[E error] func(E)
 
-type Func[T interface{}, E error] func(Resolve[T], Reject[E])
+type Func[T any, E error] func(Resolve[T], Reject[E])
 
-type Future[T interface{}, E error] interface {
+type Future[T any, E error] interface {
 	Await() Result[T, E]
 }
 
-type future[T interface{}, E error] struct {
+type future[T any, E error] struct {
 	ctx        context.Context
 	valChannel chan T
 	errChannel chan E
 }
 
-func Async[T interface{}, E error](fun Func[T, E], ctxs ...context.Context) Future[T, E] {
-	ctx := context.Background()
-	if len(ctxs) > 0 {
-		ctx = ctxs[0]
-	}
+func Async[T any, E error](ctx context.Context, fun Func[T, E]) Future[T, E] {
 	future := &future[T, E]{
 		ctx:        ctx,
 		valChannel: make(chan T),
@@ -81,3 +77,5 @@ func (future *future[T, E]) Await() Result[T, E] {
 		}
 	}
 }
+
+var _ Future[any, error] = &future[any, error]{}

@@ -19,61 +19,54 @@ type testUserType struct {
 
 func (suite *FutureTestSuite) TestAwait() {
 	suite.Run("should wait on future", func() {
-		future := Async(func(res Resolve[string], rej Reject[error]) {
+		future := Async(context.Background(), func(res Resolve[string], rej Reject[error]) {
+			time.Sleep(1000)
 			res("ok")
 		})
-		time.Sleep(1000)
 		result := future.Await()
-		suite.Equal("ok", result.Value())
+		suite.Equal("ok", *result.Value())
 	})
 
 	suite.Run("should return custom value", func() {
-		result := Async(func(res Resolve[testUserType], rej Reject[error]) {
+		result := Async(context.Background(), func(res Resolve[testUserType], rej Reject[error]) {
 			res(testUserType{Name: "John"})
 		}).Await()
 		suite.Equal("John", result.Value().Name)
 	})
 
 	suite.Run("should return value", func() {
-		result := Async(func(res Resolve[string], rej Reject[error]) {
+		result := Async(context.Background(), func(res Resolve[string], rej Reject[error]) {
 			res("yes")
 		}).Await()
-		suite.Equal("yes", result.Value())
+		suite.Equal("yes", *result.Value())
 	})
 
 	suite.Run("should return error", func() {
-		result := Async(func(res Resolve[interface{}], rej Reject[error]) {
-			rej(errors.New("something is wrong"))
+		err := errors.New("something is wrong")
+		result := Async(context.Background(), func(res Resolve[interface{}], rej Reject[error]) {
+			rej(err)
 		}).Await()
-		suite.Equal("something is wrong", result.Error().Error())
+		suite.Equal(&err, result.Error())
 	})
 
 	suite.Run("should error on context deadline exceeded", func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(1*time.Second))
 		defer cancel()
-		future := Async(func(res Resolve[string], rej Reject[error]) {
+		future := Async(ctx, func(res Resolve[string], rej Reject[error]) {
 			time.Sleep(3 * time.Second)
 			res("should not see this")
-		}, ctx)
+		})
 		result := future.Await()
-		suite.Equal("context deadline exceeded", result.Error().Error())
+		suite.Equal("context deadline exceeded", (*result.Error()).Error())
 	})
 
 	suite.Run("should handle panic", func() {
-		result := Async(func(res Resolve[interface{}], rej Reject[error]) {
+		result := Async(context.Background(), func(res Resolve[interface{}], rej Reject[error]) {
 			panic("something is deadly wrong..")
 		}).Await()
-		suite.False(result.IsOK())
-		suite.Equal("something is deadly wrong..", result.Error().Error())
+		suite.False(result.IsOk())
+		suite.Equal("something is deadly wrong..", (*result.Error()).Error())
 	})
-}
-
-func (suite *FutureTestSuite) TestPanic() {
-	result := Async(func(res Resolve[interface{}], rej Reject[error]) {
-		panic("something is deadly wrong..")
-	}).Await()
-	suite.False(result.IsOK())
-	suite.Equal("something is deadly wrong..", result.Error().Error())
 }
 
 // In order for 'go test' to run this suite, we need to create

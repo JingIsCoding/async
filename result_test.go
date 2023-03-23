@@ -22,7 +22,8 @@ func (suite *ResultTestSuite) TestResult() {
 			value: &value,
 			err:   nil,
 		}
-		suite.Equal("ok", result.Value())
+		suite.Equal("ok", *result.Value())
+		suite.Nil(result.Error())
 	})
 
 	suite.Run("should return value of custom type", func() {
@@ -32,6 +33,7 @@ func (suite *ResultTestSuite) TestResult() {
 			err:   nil,
 		}
 		suite.Equal("yes", result.Value().data)
+		suite.Nil(result.Error())
 	})
 
 	suite.Run("should return error", func() {
@@ -40,7 +42,8 @@ func (suite *ResultTestSuite) TestResult() {
 			value: nil,
 			err:   &err,
 		}
-		suite.Equal("not ok", result.Error().Error())
+		suite.Nil(result.Value())
+		suite.Equal("not ok", (*result.Error()).Error())
 	})
 
 	suite.Run("should return is not ok there is error", func() {
@@ -49,7 +52,8 @@ func (suite *ResultTestSuite) TestResult() {
 			value: nil,
 			err:   &err,
 		}
-		suite.False(result.IsOK())
+		suite.Nil(result.Value())
+		suite.False(result.IsOk())
 	})
 }
 
