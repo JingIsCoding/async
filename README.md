@@ -19,7 +19,7 @@ future := Async(context.Background(), func(res Resolve[string], rej Reject[error
 	res("ok")
 })
 result := future.Await()
-suite.Equal("ok", *result.Value())
+fmt.Println(*result.Value())
 
 ```
 #### Resolves the future with custom type
@@ -30,7 +30,7 @@ type testUserType struct {
 result := Async(context.Background(), func(res Resolve[testUserType], rej Reject[error]) {
 	res(testUserType{Name: "John"})
 }).Await()
-suite.Equal("John", result.Value().Name)
+fmt.Println(result.Value().Name)
 
 ```
 
@@ -40,7 +40,7 @@ err := errors.New("something is wrong")
 result := Async(context.Background(), func(res Resolve[interface{}], rej Reject[error]) {
 	rej(err)
 }).Await()
-suite.Equal(&err, result.Error())
+fmt.Println((*result.Error()).Error())
 
 ```
 
@@ -53,7 +53,23 @@ future := Async(ctx, func(res Resolve[string], rej Reject[error]) {
 	res("should not see this")
 })
 result := future.Await()
-suite.Equal("context deadline exceeded", (*result.Error()).Error())
+fmt.Println((*result.Error()).Error())
+```
+
+#### Trigger multiple async jobs
+```go
+future := AsyncAll(context.Background(),
+	func(res Resolve[string], rej Reject[error]) {
+		time.Sleep(2000)
+		res("ok1")
+	},
+	func(res Resolve[string], rej Reject[error]) {
+		time.Sleep(1000)
+		res("ok2")
+})
+results := future.Await()
+fmt.Println(result.Value()[0])
+fmt.Println(result.Value()[1])
 
 ```
 
